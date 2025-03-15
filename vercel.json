@@ -1,12 +1,8 @@
 {
     "version": 2,
-    "builds": [{ "src": "API.py", "use": "@vercel/python"  },
-    {
-      "src": "build.sh",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "staticfiles_build" }
-    }],
-    
+    "builds": [{ "src": "API.py", "use": "@vercel/python" , "config": { "runtime": "python3.12" } }
+    ],
+
     "routes": [{ "src": "/(.*)", "dest": "API.py" }]
 
   }
