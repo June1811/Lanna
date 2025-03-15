@@ -1,8 +1,22 @@
 {
     "version": 2,
-    "builds": [{ "src": "API.py", "use": "@vercel/python" , "config": { "runtime": "python3.12" } }
-    ],
+    "builds": [
+      { "src": "API.py",
+        "use": "@vercel/python" , 
+        "config": { 
+          "runtime": "python3.12" 
+          } 
+        }
+      ],
 
-    "routes": [{ "src": "/(.*)", "dest": "API.py" }]
+      "routes": [{ "src": "/(.*)", "dest": "API.py" }] ,
+      "env":{
+        "PYTHONPATH": "./vendor"
+      }
+}
 
-  }
+
+
+
+
+
