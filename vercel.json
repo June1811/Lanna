@@ -1,6 +1,12 @@
 {
     "version": 2,
-    "builds": [{ "src": "API.py", "use": "@vercel/python", "command": "./build.sh"}],
+    "builds": [{ "src": "API.py", "use": "@vercel/python"  },
+    {
+      "src": "build.sh",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "staticfiles_build" }
+    }],
+    
     "routes": [{ "src": "/(.*)", "dest": "API.py" }]
 
   }
