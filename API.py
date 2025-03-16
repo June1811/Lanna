@@ -24,7 +24,7 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ เพิ่ม route สำหรับ `/`
-@app.route("/", methods=["GET", "HEAD"])
+@app.route("/", methods=["GET", "HEAD" ,"POST"])
 def home():
     return jsonify({"message": "OCR API is running!"})
 
