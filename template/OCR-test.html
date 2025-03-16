@@ -36,7 +36,7 @@
         }
         .result-text {
             font-family: 'DokChok', serif;
-            font-size: 36spx;
+            font-size: 36px;
             color: #5c3a19;
             margin-top: 20px;
         }
@@ -65,7 +65,7 @@
     <button id="uploadButton">อัปโหลดภาพ</button>
     <br>
     <div id="result_LN" class="lanna-text"></div>
-    <div id="result" class = "result-text"></div>
+    <div id="result" class="result-text"></div>
     
     <script>
         let selectedFile;
@@ -87,7 +87,7 @@
                 const formData = new FormData();
                 formData.append('image', selectedFile);
 
-                fetch('http://127.0.0.1:5000/process_image', {
+                fetch('/process_image', {  // เปลี่ยนเป็น URL แบบสัมพัทธ์
                     method: 'POST',
                     body: formData
                 })
