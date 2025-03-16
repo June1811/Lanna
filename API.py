@@ -23,7 +23,7 @@ model = load_model('Model/OCR-lanna.h5')
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/process_image', methods=['POST'])
+@app.route('/process_image', methods=['POST',"HEAD"])
 def process_image():
     image_file = request.files.get('image')
     if not image_file:
