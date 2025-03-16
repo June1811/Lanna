@@ -62,9 +62,13 @@ labels =(train_set.class_indices)
 labels = dict((v,k) for k,v in labels.items())
 
 model = load_model('Model/OCR-lanna.h5')
-webbrowser.open('file://' + os.path.realpath('template/OCR-test.html'))
+#webbrowser.open('file://' + os.path.realpath('template/OCR-test.html'))
 app = Flask(__name__, template_folder='template')
 CORS(app)
+
+def index():
+    # Render OCR-test.html จากโฟลเดอร์ template
+    return render_template('OCR-test.html')  # ให้ Flask แสดงไฟล์ OCR-test.html
 
 @app.route('/process_image', methods=['POST'])
 def process_image():
