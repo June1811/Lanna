@@ -47,8 +47,8 @@ encode = {'_n':'-น',
           'AI':'ใ',
           }
 
-train_dir = "dataset\\model\\train\\"
-val_dir = 'dataset\\model\\test\\'
+train_dir = "dataset/model/train/"
+val_dir = "dataset/model/test/"
 target_img_shape = (70,70)
 nclass = 35
 
