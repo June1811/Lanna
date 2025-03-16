@@ -23,7 +23,12 @@ model = load_model('Model/OCR-lanna.h5')
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/process_image', methods=['POST',"HEAD"])
+# ✅ เพิ่ม route สำหรับ `/`
+@app.route("/", methods=["GET", "HEAD"])
+def home():
+    return jsonify({"message": "OCR API is running!"})
+
+@app.route('/process_image', methods=['POST'])
 def process_image():
     image_file = request.files.get('image')
     if not image_file:
