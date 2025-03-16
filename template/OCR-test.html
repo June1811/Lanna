@@ -90,7 +90,7 @@
                 const formData = new FormData();
                 formData.append('image', selectedFile);
 
-                fetch('http://127.0.0.1:5000/process_image', {
+                fetch('https://lanna-service.onrender.com/', {
                     method: 'POST',
                     body: formData
                 })

@@ -1,2 +1,8 @@
-env: python
-python_version: 3.11.0
+services:
+  - type: web
+    name: OCR-Flask-API
+    env: python
+    pythonVersion: 3.11.0  # ระบุเวอร์ชันของ Python ที่ต้องการใช้
+    envVars:
+      - key: PORT
+        value: 10000
