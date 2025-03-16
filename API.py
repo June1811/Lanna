@@ -199,4 +199,7 @@ def process_image():
     return jsonify({'text_LN': text, 'text': text_edit})
 
 if __name__ == '__main__':
-    app.run()
+    #app.run()
+    port = int(os.environ.get("PORT", 10000))  # ใช้ PORT จาก environment variable ของ Render ถ้ามี ถ้าไม่มีใช้ 10000
+    app.run(host="0.0.0.0", port=port)
+    
