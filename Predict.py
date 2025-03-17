@@ -4,6 +4,7 @@ import os
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array
 from tensorflow.keras.applications.efficientnet_v2 import preprocess_input
+from sklearn.metrics import classification_report
 
 encode = {'_n':'-น',
           '_m':'-ม',
@@ -42,10 +43,10 @@ encode = {'_n':'-น',
           'AI':'ใ',
           }
 
-train_dir = "dataset/model/train/"
-val_dir = "dataset/model/test/"
-target_img_shape = (70,70)
-nclass = 35
+train_dir = "dataset/model/train/"   #ที่อยู่ของไฟล์ภาพที่จะเอาไป train
+val_dir = "dataset/model/test/"     #ที่อยู่ของไฟล์ภาพที่จะเอาไป train
+target_img_shape = (70,70)           # ปรับขนาดภาพ
+nclass = 35                         #คลาสตัวอักษรที่มี
 
 train_datagen = ImageDataGenerator()
 train_set = train_datagen.flow_from_directory(train_dir,target_size=target_img_shape,batch_size=32,class_mode = 'categorical')
@@ -56,9 +57,9 @@ val_set = val_datagen.flow_from_directory(val_dir,shuffle=False,target_size=targ
 labels =(train_set.class_indices)
 labels = dict((v,k) for k,v in labels.items())
 
-model = load_model('Model/OCR-lanna.h5')
+model = load_model('Model/OCR-lanna.h5') #โมเดลที่ถูกฝึกมาก่อนหน้านี้เพื่อทำนายอักษรจากภาพ
 
-image = cv2.imread("image_for_test/026.png")
+image = cv2.imread("image_for_test/2_01_1.jpg")
 new_height = 150 
 h, w = image.shape[:2]
 new_width = int((new_height / h) * w)
@@ -82,6 +83,7 @@ obj_b = []
 
 predicts = []
 
+
 for i, contour in enumerate(filtered_contours):
     x, y, w, h = cv2.boundingRect(contour)
     object_img = thresh[y:y + h, x:x + w]
@@ -89,14 +91,15 @@ for i, contour in enumerate(filtered_contours):
     print(h,w)
     if h < 10 or w < 20 : continue
 
+    # สร้าง Mask เพื่อดึงเฉพาะตัวอักษร
     contours1, _ = cv2.findContours(object_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     areas = [cv2.contourArea(cnt) for cnt in contours1]
     max_area = max(areas)
     mask = np.zeros_like(object_img)
 
     for i, contour in enumerate(contours1):
-	    if cv2.contourArea(contour) == max_area: 
-	        cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
+    	if cv2.contourArea(contour) == max_area: 
+         cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
 
     result = cv2.bitwise_and(object_img, object_img, mask=mask)      
     result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
@@ -105,19 +108,54 @@ for i, contour in enumerate(filtered_contours):
     img_array = np.expand_dims(img_array, axis=0)
     img_array = preprocess_input(img_array)
     
+    #ทำนายว่าตัวอักษรเป็นตัวอะไร (ของเดิม)
+ #   predict = model.predict(img_array)
+ #   pred_cls = labels[np.argmax(predict, axis=-1)[0]]
+ #   print("prediction: ", encode[pred_cls])
+    
+    #ทำนายอักษรจากภาพ
     predict = model.predict(img_array)
     pred_cls = labels[np.argmax(predict, axis=-1)[0]]
-    print("prediction: ", encode[pred_cls])
-
+    
+    # ตรวจสอบว่า pred_cls มีใน encode หรือไม่
+    if pred_cls in encode:
+        char_label = encode[pred_cls]
+    else:
+        char_label = "???"
+        
+    # แปลงค่าความมั่นใจเป็น %
+    confidence = np.max(predict) * 100  
+    # แสดงผลลัพธ์ใน console
+    print(f"Prediction: {encode[pred_cls]} ({confidence:.2f}%)") 
+    
+    # คำนวณตำแหน่งศูนย์กลางของตัวอักษร
     object_center = [x+(w//2), y+(h//2)]
-    # cv2.imshow(f'Character {count}', result)
+    
+    #วาดกรอบสี่เหลี่ยมรอบตัวอักษรและแสดงผลลัพธ์บนภาพ
     cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    cv2.putText(image, pred_cls, (x, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,0,255), 2)
-    cv2.circle(image, (object_center[0],object_center[1]), 2, (0,0,255), -1)
-    obj_Y.append(y)
+    #cv2.putText(image, f"{encode[pred_cls]} {confidence:.1f}%", (x, y - 10),  
+    #            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+    cv2.putText(image, f"{pred_cls} {confidence:.1f}%", (x, y - 10),  
+            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    
+    cv2.circle(image, (object_center[0], object_center[1]), 2, (0, 0, 255), -1)
+
+    obj_Y.append(y)   #เก็บตำแหน่ง
     obj_b.append(y+h)
     predicts.append([encode[pred_cls],object_center,x,x+w])
     count += 1
+
+
+#    object_center = [x+(w//2), y+(h//2)]
+    # cv2.imshow(f'Character {count}', result)
+#    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#    cv2.putText(image, pred_cls, (x, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,0,255), 2)
+#    cv2.circle(image, (object_center[0],object_center[1]), 2, (0,0,255), -1)
+#    obj_Y.append(y)   #เก็บตำแหน่ง
+#    obj_b.append(y+h)
+#    predicts.append([encode[pred_cls],object_center,x,x+w])
+#    count += 1
 
 under_line = int(sum(obj_b)/len(obj_b))+4
 line = int(sum(obj_Y)/len(obj_Y))-3
