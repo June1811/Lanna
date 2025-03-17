@@ -47,7 +47,7 @@ CORS(app)
 def home():
     return jsonify({"message": "OCR API is running!"})
 
-@app.route('/process_image', methods=['POST'])
+@app.route('/process_image', methods=['GET','POST'])
 def process_image():
     image_file = request.files.get('image')
     if not image_file:
